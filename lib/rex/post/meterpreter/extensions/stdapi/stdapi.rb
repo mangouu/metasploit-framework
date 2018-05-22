@@ -7,6 +7,7 @@ require 'rex/post/meterpreter/extensions/stdapi/tlv'
 require 'rex/post/meterpreter/extensions/stdapi/fs/dir'
 require 'rex/post/meterpreter/extensions/stdapi/fs/file'
 require 'rex/post/meterpreter/extensions/stdapi/fs/file_stat'
+require 'rex/post/meterpreter/extensions/stdapi/fs/mount'
 require 'rex/post/meterpreter/extensions/stdapi/net/resolve'
 require 'rex/post/meterpreter/extensions/stdapi/net/config'
 require 'rex/post/meterpreter/extensions/stdapi/net/socket'
@@ -18,6 +19,7 @@ require 'rex/post/meterpreter/extensions/stdapi/sys/power'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/railgun'
 require 'rex/post/meterpreter/extensions/stdapi/ui'
 require 'rex/post/meterpreter/extensions/stdapi/webcam/webcam'
+require 'rex/post/meterpreter/extensions/stdapi/mic/mic'
 
 module Rex
 module Post
@@ -50,7 +52,8 @@ class Stdapi < Extension
             {
               'dir'      => self.dir,
               'file'     => self.file,
-              'filestat' => self.filestat
+              'filestat' => self.filestat,
+              'mount'    => Fs::Mount.new(client)
             })
         },
         {
@@ -80,6 +83,10 @@ class Stdapi < Extension
         {
           'name' => 'webcam',
           'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Webcam::Webcam.new(client)
+        },
+        {
+          'name' => 'mic',
+          'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Mic::Mic.new(client)
         },
         {
           'name' => 'ui',

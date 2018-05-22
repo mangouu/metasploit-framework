@@ -1,13 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 require 'openssl'
 
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
   def initialize
@@ -47,7 +45,6 @@ class Metasploit3 < Msf::Auxiliary
       'References' => [
         ['CVE', '2015-1793'],
         ['CWE', '754'],
-        ['URL', 'http://www.openssl.org/news/secadv_20150709.txt'],
         ['URL', 'http://git.openssl.org/?p=openssl.git;a=commit;h=f404943bcab4898d18f3ac1b36479d1d7bbbb9e6']
       ],
       'DisclosureDate' => 'Jul 9 2015'
@@ -64,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
         OptString.new('PORT', [ true, 'The server port', 443]),
         OptString.new('SRVHOST', [ true, 'The proxy address', '0.0.0.0']),
         OptString.new('SRVPORT', [ true, 'The proxy port', 443])
-      ], self.class)
+      ])
   end
 
   def cleanup
@@ -225,5 +222,4 @@ class Metasploit3 < Msf::Auxiliary
       end
     end
   end
-
 end

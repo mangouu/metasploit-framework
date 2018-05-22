@@ -1,11 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
+class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
@@ -21,8 +19,8 @@ class Metasploit3 < Msf::Auxiliary
       'License'      => MSF_LICENSE,
       'References'   =>
         [
-          [ 'URL', 'https://github.com/claudijd/BNAT-Suite'],
-          [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels'],
+          [ 'URL', 'https://github.com/claudijd/bnat' ],
+          [ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels']
         ]
     )
     register_options(
@@ -32,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
           OptString.new('CLIENTIP',  [true, 'The ip of the client behing the BNAT router', '192.168.3.2']),
           OptString.new('SERVERIP',  [true, 'The ip of the server you are targeting', '1.1.2.1']),
           OptString.new('BNATIP',    [true, 'The ip of the bnat response you are getting', '1.1.2.2']),
-        ],self.class)
+        ])
   end
 
   def run

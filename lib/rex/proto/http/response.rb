@@ -1,7 +1,9 @@
 # -*- coding: binary -*-
+require 'cgi'
 require 'uri'
 require 'rex/proto/http'
 require 'nokogiri'
+require 'rkelly'
 
 module Rex
 module Proto
@@ -83,6 +85,74 @@ class Response < Packet
     return cookies.strip
   end
 
+  #
+  # Gets cookies from the Set-Cookie header in a parsed format
+  #
+  def get_cookies_parsed
+    if (self.headers.include?('Set-Cookie'))
+      ret = CGI::Cookie::parse(self.headers['Set-Cookie'])
+    else
+      ret = {}
+    end
+    ret
+  end
+
+
+  # Returns a parsed HTML document.
+  # Instead of using regexes to parse the HTML body, you should use this and use the Nokogiri API.
+  #
+  # @see http://www.nokogiri.org/
+  # @return [Nokogiri::HTML::Document]
+  def get_html_document
+    Nokogiri::HTML(self.body)
+  end
+
+  # Returns a parsed XML document.
+  # Instead of using regexes to parse the XML body, you should use this and use the Nokogiri API.
+  #
+  # @see http://www.nokogiri.org/
+  # @return [Nokogiri::XML::Document]
+  def get_xml_document
+    Nokogiri::XML(self.body)
+  end
+
+  # Returns a parsed json document.
+  # Instead of using regexes to parse the JSON body, you should use this.
+  #
+  # @return [Hash]
+  def get_json_document
+    json = {}
+
+    begin
+      json = JSON.parse(self.body)
+    rescue JSON::ParserError => e
+      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+    end
+
+    json
+  end
+
+  # Returns meta tags.
+  # You will probably want to use this the web app's version info (or other stuff) can be found
+  # in the metadata.
+  #
+  # @return [Array<Nokogiri::XML::Element>]
+  def get_html_meta_elements
+    n = get_html_document
+    n.search('//meta')
+  end
+
+  # Returns parsed JavaScript blocks.
+  # The parsed version is a RKelly object that allows you to be able do advanced parsing.
+  #
+  # @see https://github.com/tenderlove/rkelly
+  # @return [Array<RKelly::Nodes::SourceElementsNode>]
+  def get_html_scripts
+    n = get_html_document
+    rkelly = RKelly::Parser.new
+    n.search('//script').map { |s| rkelly.parse(s.text) }
+  end
+
 
   # Returns a collection of found hidden inputs
   #
@@ -94,7 +164,7 @@ class Response < Packet
   #  session_id = inputs[0]['sessionid'] # The first form's 'sessionid' hidden input
   def get_hidden_inputs
     forms = []
-    noko = Nokogiri::HTML(self.body)
+    noko = get_html_document
     noko.search("form").each_entry do |form|
       found_inputs = {}
       form.search("input").each_entry do |input|
@@ -168,6 +238,10 @@ class Response < Packet
   #
   attr_accessor :request
 
+  #
+  # Host address:port associated with this request/response
+  #
+  attr_accessor :peerinfo
 
   attr_accessor :code
   attr_accessor :message

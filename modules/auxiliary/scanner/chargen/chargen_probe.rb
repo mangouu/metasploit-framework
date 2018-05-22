@@ -1,13 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Capture
   include Msf::Auxiliary::Report
@@ -35,8 +31,7 @@ class Metasploit3 < Msf::Auxiliary
       'References'  =>
         [
           [ 'CVE', '1999-0103' ], # Note, does not actually trigger a flood.
-          [ 'URL', 'https://www.cert.be/pro/docs/chargensnmp-ddos-attacks-rise' ],
-          [ 'URL', 'http://tools.ietf.org/html/rfc864' ],
+          [ 'URL', 'http://tools.ietf.org/html/rfc864' ]
         ],
       'DisclosureDate' => 'Feb 08 1996')
 

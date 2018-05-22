@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit3 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
 
   def initialize
@@ -18,11 +15,7 @@ class Metasploit3 < Msf::Auxiliary
       must match the rogue_send parameters used exactly.
       },
       'Author'      => 'hdm',
-      'License'     => MSF_LICENSE,
-      'References'  =>
-        [
-          ['URL', 'http://www.metasploit.com/research/projects/rogue_network/'],
-        ]
+      'License'     => MSF_LICENSE
     )
 
     register_options([
@@ -79,5 +72,4 @@ class Metasploit3 < Msf::Auxiliary
     end
     return reply
   end
-
 end

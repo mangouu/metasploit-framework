@@ -122,7 +122,10 @@ module ModuleCommandDispatcher
   # Checks to see if a target is vulnerable.
   #
   def cmd_check(*args)
-    defanged?
+    if args.first =~ /^\-h$/i
+      cmd_check_help
+      return
+    end
 
     ip_range_arg = args.shift || mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
     opt = Msf::OptAddressRange.new('RHOSTS')
@@ -164,31 +167,77 @@ module ModuleCommandDispatcher
     end
   end
 
+  def cmd_check_help
+    print_line('Usage: check [option] [IP Range]')
+    print_line
+    print_line('Options:')
+    print_line('-h  You are looking at it.')
+    print_line
+    print_line('Examples:')
+    print_line('')
+    print_line('Normally, if a RHOST is already specified, you can just run check.')
+    print_line('But here are different ways to use the command:')
+    print_line
+    print_line('Against a single host:')
+    print_line('check 192.168.1.123')
+    print_line
+    print_line('Against a range of IPs:')
+    print_line('check 192.168.1.1-192.168.1.254')
+    print_line
+    print_line('Against a range of IPs loaded from a file:')
+    print_line('check file:///tmp/ip_list.txt')
+    print_line
+    print_line('Multi-threaded checks:')
+    print_line('1. set THREADS 10')
+    print_line('2. check')
+    print_line
+  end
+
+  def report_vuln(instance)
+    framework.db.report_vuln(
+      workspace: instance.workspace,
+      host: instance.rhost,
+      name: instance.name,
+      info: "This was flagged as vulnerable by the explicit check of #{instance.fullname}.",
+      refs: instance.references
+    )
+  end
+
   def check_simple(instance=nil)
     unless instance
-      instance = mod 
+      instance = mod
     end
 
     rhost = instance.datastore['RHOST']
-    rport = nil
+    rport = instance.datastore['RPORT']
     peer = rhost
-    if instance.datastore['rport']
-      rport = instance.rport
+    if rport
+      rport = instance.rport if instance.respond_to?(:rport)
       peer = "#{rhost}:#{rport}"
     end
 
     begin
-      code = instance.check_simple(
-        'LocalInput'  => driver.input,
-        'LocalOutput' => driver.output)
+      if instance.respond_to?(:check_simple)
+        code = instance.check_simple(
+          'LocalInput'  => driver.input,
+          'LocalOutput' => driver.output
+        )
+      else
+        msg = "Check failed: #{instance.type.capitalize} modules do not support check."
+        raise NotImplementedError, msg
+      end
+
       if (code and code.kind_of?(Array) and code.length > 1)
         if (code == Msf::Exploit::CheckCode::Vulnerable)
-          print_good("#{peer} - #{code[1]}")
+          print_good("#{peer} #{code[1]}")
+          # Restore RHOST for report_vuln
+          instance.datastore['RHOST'] ||= rhost
+          report_vuln(instance)
         else
-          print_status("#{peer} - #{code[1]}")
+          print_status("#{peer} #{code[1]}")
         end
       else
-        msg = "#{peer} - Check failed: The state could not be determined."
+        msg = "#{peer} Check failed: The state could not be determined."
         print_error(msg)
         elog("#{msg}\n#{caller.join("\n")}")
       end
@@ -198,11 +247,11 @@ module ModuleCommandDispatcher
     rescue ::RuntimeError => e
       # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
-    rescue Msf::OptionValidateError => e
-      print_error("Check failed: #{e.message}")
+    rescue ::NotImplementedError => e
+      print_error(e.message)
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     rescue ::Exception => e
-      print_error("#{peer} - Check failed: #{e.class} #{e}")
+      print_error("Check failed: #{e.class} #{e}")
       elog("#{e.message}\n#{e.backtrace.join("\n")}")
     end
   end

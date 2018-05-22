@@ -1,12 +1,9 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
-
-class Metasploit4 < Msf::Auxiliary
-
+class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Capture
   include Msf::Auxiliary::UDPScanner
   include Msf::Auxiliary::Dos
@@ -30,8 +27,7 @@ class Metasploit4 < Msf::Auxiliary
       'References'     => [
         ['CVE', '2015-5477'],
         ['URL', 'https://www.isc.org/blogs/cve-2015-5477-an-error-in-handling-tkey-queries-can-cause-named-to-exit-with-a-require-assertion-failure/'],
-        ['URL', 'https://kb.isc.org/article/AA-01272'],
-        ['URL', 'https://github.com/rapid7/metasploit-framework/issues/5790']
+        ['URL', 'https://kb.isc.org/article/AA-01272']
       ],
       'DisclosureDate' => 'Jul 28 2015',
       'License'        => MSF_LICENSE,
@@ -87,5 +83,4 @@ class Metasploit4 < Msf::Auxiliary
     query << txt_length  # TXT Length
     query << txt         # TXT
   end
-
 end

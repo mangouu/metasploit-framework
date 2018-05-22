@@ -1,6 +1,6 @@
 require 'msf/core/opt'
 
-describe Msf::Opt do
+RSpec.describe Msf::Opt do
   subject(:opt) { described_class }
 
   it { is_expected.to respond_to(:CHOST) }
@@ -39,7 +39,7 @@ describe Msf::Opt do
 
     context 'RHOST' do
       subject { described_class::RHOST }
-      it { is_expected.to be_a(Msf::OptAddress) }
+      it { is_expected.to be_a(Msf::OptAddressRange) }
     end
 
     context 'RPORT' do
@@ -93,7 +93,7 @@ describe Msf::Opt do
 
     context 'RHOST()' do
       subject { described_class::RHOST(default) }
-      it { is_expected.to be_a(Msf::OptAddress) }
+      it { is_expected.to be_a(Msf::OptAddressRange) }
       specify 'sets default' do
         expect(subject.default).to eq(default)
       end
